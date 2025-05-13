@@ -1,0 +1,51 @@
+# RT-Thread 常用接口功能速览
+
+## 线程管理
+
+| 函数 | 功能简述 | 调用示例 (含说明) |
+| -------- | -------- | ---------------- |
+| `rt_thread_create()` | 动态创建一个新线程 | `rt_thread_t tid = rt_thread_create("thread1", entry, RT_NULL, 1024, 10, 20);` // 创建名为 thread1 的线程，入口函数为 entry，堆栈 1KB，优先级为 10，时间片为 20 |
+| `rt_thread_startup()` | 启动已创建的线程 | `rt_thread_startup(tid);` // 将上面创建的线程 tid 启动，进入应答状态 |
+| `rt_thread_delay()` | 当前线程延时指定的 Tick | `rt_thread_delay(50);` // 延时 50 个系统节拍，大约是 5 毫秒 (tick=0.1ms 时) |
+| `rt_thread_mdelay()` | 延时指定的毫秒 | `rt_thread_mdelay(1000);` // 待毫秒级延时 1000ms |
+
+## 信号量
+
+| 函数 | 功能简述 | 调用示例 |
+| -------- | -------- | -------- |
+| `rt_sem_init()` | 静态初始化一个信号量 | `rt_sem_init(&sem, "sem1", 0, RT_IPC_FLAG_FIFO);` // 初始化名为 sem1 的信号量，初始计数 0，先进先出策略 |
+| `rt_sem_take()` | 强制线程等待信号量 | `rt_sem_take(&sem, RT_WAITING_FOREVER);` // 等待时间为永远，直到信号量符合 |
+| `rt_sem_release()` | 释放一个信号量 | `rt_sem_release(&sem);` // 增加信号量计数，如有等待的线程则被唤醒 |
+
+## 内存管理
+
+| 函数 | 功能简述 | 调用示例 |
+| -------- | -------- | -------- |
+| `rt_malloc()` | 分配指定大小的内存 | `ptr = rt_malloc(128);` // 分配 128 字节内存，返回指针 |
+| `rt_free()` | 释放分配的内存 | `rt_free(ptr);` // 释放上面分配的 ptr |
+
+## 定时器
+
+| 函数 | 功能简述 | 调用示例 |
+| -------- | -------- | -------- |
+| `rt_timer_create()` | 创建一次性/周期定时器 | `rt_timer_create("tmr", timeout_func, RT_NULL, 1000, RT_TIMER_FLAG_PERIODIC);` // 每毫秒触发一次 timeout_func |
+| `rt_timer_start()` | 启动定时器 | `rt_timer_start(timer);` // 开始计时 |
+| `rt_timer_stop()` | 停止定时器 | `rt_timer_stop(timer);` // 停止计时 |
+
+## 设备操作
+
+| 函数 | 功能简述 | 调用示例 |
+| -------- | -------- | -------- |
+| `rt_device_find()` | 根据名字查找设备 | `rt_device_t dev = rt_device_find("uart1");` // 找到名为 uart1 的设备控制块 |
+| `rt_device_open()` | 打开设备并设置读/写模式 | `rt_device_open(dev, RT_DEVICE_OFLAG_RDWR);` // 设备支持读写 |
+| `rt_device_read()` | 从设备读取数据 | `rt_device_read(dev, 0, buf, 10);` // 从 dev 读取 10 字节到 buf |
+| `rt_device_write()` | 向设备写入数据 | `rt_device_write(dev, 0, "OK", 2);` // 向 dev 写入文本 "OK" |
+| `rt_device_control()` | 向设备发送 IOCTL 操作 | `rt_device_control(dev, CMD, arg);` // 执行 CMD 指令，传递 arg 参数 |
+
+## 系统调试
+
+| 函数 | 功能简述 | 调用示例 |
+| -------- | -------- | -------- |
+| `rt_kprintf()` | 格式化输出调试信息 | `rt_kprintf("val=%d\n", val);` // 打印数值 val 到终端 |
+| `rt_tick_get()` | 获取系统当前节拍 | `rt_tick_t t = rt_tick_get();` // 返回 RTOS 计时节拍 |
+| `rt_tick_from_millisecond()` | 毫秒转为 tick 值 | `rt_tick_from_millisecond(500);` // 将 500ms 转换为 tick 值 |
